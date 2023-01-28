@@ -1,4 +1,5 @@
 from random import randint
+import sys
 
 class Game:
     """
@@ -95,34 +96,38 @@ class Game:
     def _correct_y_axis(self, ship, index): 
         return ship[1] == index
 
-    def _check_if_game_over(self, guesser):
-        if guesser == "player":
-            self.player_score += 1
-            if self.player_score >= self.amount_of_boats:
-                print(f"The winner is: {self.player_name}!")
-                self.game_over = True
-                return True
-        else:
-            self.computer_score += 1
-            if self.computer_score >= self.amount_of_boats:
-                print("Computer won!")
-                self.game_over = True
-                return True
+    def _check_if_game_over(self, guesser, correct_guess):
+        if correct_guess:
+            if guesser == "player":
+                self.player_score += 1
+                if self.player_score >= self.amount_of_boats:
+                    print(f"The winner is: {self.player_name}!")
+                    self.game_over = True
+                    return True
+            else:
+                self.computer_score += 1
+                if self.computer_score >= self.amount_of_boats:
+                    print("Computer won!")
+                    self.game_over = True
+                    return True
+
+    def _next_round(self):
+        player_input = input("Press any key to continue, or Q to quit \n")
+        if (player_input.lower() == "q"):
+            sys.exit(0)
 
     def create_boards(self, size):
         self.size = size
         self.amount_of_boats = 4
 
         def generateboard():
-            return [["." for x in range(size)] for y in range(size)]
+            return [["." for _ in range(size)] for _ in range(size)]
        
         self.player_board = generateboard()
         self.computer_board = generateboard()
 
         self.player_ship_placement = self._random_ship_placements()
         self.computer_ship_placement = self._random_ship_placements()
-
-        print(self.player_board)
 
         for ship in self.player_ship_placement:
             self.player_board[ship[1]][ship[0]] = "&"
@@ -137,17 +142,22 @@ class Game:
             print(" ".join(row))
 
     def player_guess(self):
-        print("Comp board", self.computer_ship_placement)
-        print("player_board", self.player_ship_placement)
         print("-" * 20)
-        player_guessing_letter = self._ask_letter()
-        player_guessing_number = self._ask_number()
+
+        unique_guess = False
+        x_axis_index = ""
+        y_axis_index = ""
+
+        while not unique_guess:
+            player_guessing_letter = self._ask_letter()
+            player_guessing_number = self._ask_number()
+            x_axis_index = self.x_axis_dict[player_guessing_letter]
+            y_axis_index = self.y_axis_dict[player_guessing_number]
+            unique_guess = self.computer_board[y_axis_index][x_axis_index] == "."
+            if not unique_guess:
+                print("You have already guessed this position")
 
         player_correct_guess = False
-
-        x_axis_index = self.x_axis_dict[player_guessing_letter]
-        y_axis_index = self.y_axis_dict[player_guessing_number]
-
         for ship in self.computer_ship_placement:
             if self._correct_x_axis(ship, x_axis_index) and self._correct_y_axis(ship, y_axis_index):
                 player_correct_guess = True
@@ -155,16 +165,26 @@ class Game:
         if player_correct_guess:
             print("Hit")
             self.computer_board[y_axis_index][x_axis_index] = "&"
+            return True
         else:
             print("Miss")
             self.computer_board[y_axis_index][x_axis_index] = "*"
+            return False
 
     def computer_input(self):
         computer_correct_guess = False
-        comp_guess = self._rand_placements(1)[0]
+        
+        unique_guess = False
 
-        comp_x_axis_index = comp_guess[0]
-        comp_y_axis_index = comp_guess[1]
+        comp_x_axis_index = ""
+        comp_y_axis_index = ""
+
+        while not unique_guess:
+            comp_guess = self._rand_placements(1)[0]
+            comp_x_axis_index = comp_guess[0]
+            comp_y_axis_index = comp_guess[1]
+            result = self.player_board[comp_y_axis_index][comp_x_axis_index]
+            unique_guess = result == "." or result == "&"
 
         for ship in self.player_ship_placement:
             correct_x_axis = self._correct_x_axis(ship, comp_x_axis_index)
@@ -176,18 +196,21 @@ class Game:
         if computer_correct_guess:
             self.player_board[comp_y_axis_index][comp_x_axis_index] = "x"
             print("Computer Hit")
+            return True
         else:
             self.player_board[comp_y_axis_index][comp_x_axis_index] = "*"
             print("Computer Missed")
+            return False
 
     def run(self):
         while not self.game_over:
-            self.display_boards()
-            self.player_guess()
-            if self._check_if_game_over("player"):
+            player_guessed_correctly = self.player_guess()
+            if self._check_if_game_over("player", player_guessed_correctly):
                 return
-            self.computer_input()
-            self._check_if_game_over("computer")
+            computer_guessed_correctly = self.computer_input()
+            self._check_if_game_over("computer", computer_guessed_correctly)
+            self.display_boards()
+            self._next_round()
 
 def game_rules():
     print("goes here")
@@ -206,7 +229,7 @@ def main():
     game = Game(player_name)
     size = 5
     game.create_boards(size)
-
+    game.display_boards()
     game.run()
 
 main()
