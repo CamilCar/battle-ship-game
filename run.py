@@ -218,7 +218,13 @@ def game_rules():
 
 def ask_player_name():
     print("Battle Ship Game!")
-    player_name = input("Enter player name \n")
+
+    player_name = ""
+    while not player_name:
+        player_name = input("Enter player name \n")
+        if not player_name:
+            print("Player name cannot be empty")
+
     print(f"{player_name}, your game is starting...")
     print("-" * 20)
     return player_name
