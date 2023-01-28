@@ -35,6 +35,38 @@ class Game:
         else:
             return rand_placements
 
+    def _validate_letter(self, letter):
+        valid_letters = list(self.x_axis_dict.keys())
+        valid = True
+
+        if not isinstance(letter, str):
+            print("Please enter a letter")
+            valid = False
+        elif len(letter) > 1:
+            print("Please enter one letter")
+            valid = False
+        elif letter not in valid_letters:
+            print(f"Please enter one of the following letters: {valid_letters}")
+            valid = False
+
+        return valid
+
+    def _validate_number(self, number):
+        valid_numbers = list(self.y_axis_dict.keys())
+        valid = True
+
+        if not isinstance(number, int):
+            print("Please enter a number")
+            valid = False
+        elif len(number) > 1:
+            print("Please enter one number")
+            valid = False
+        elif number not in valid_numbers:
+            print(f"Please enter one of the following numbers: {valid_numbers}")
+            valid = False
+
+        return valid
+
     def create_boards(self, size):
         self.size = size
 
@@ -63,8 +95,18 @@ class Game:
 
     def player_guess(self):
         print("-" * 20)
-        player_guessing_letter = input("Choose a letter \n")
+        player_guessing_letter = input("Choose a letter \n").lower()
+        valid_letter = self._validate_letter(player_guessing_letter)
+
+        if not valid_letter:
+            self.player_guess()
+
         player_guessing_number = input("Choose a number \n")
+        valid_number = self._validate_number(player_guessing_number)
+
+        if not valid_number:
+            self.player_guess()
+
 
         def correct_x_axis(ship, index): 
             return ship[0] == index
