@@ -89,6 +89,12 @@ class Game:
 
         return player_guessing_number
 
+    def _correct_x_axis(ship, index): 
+        return ship[0] == index
+
+    def _correct_y_axis(ship, index): 
+        return ship[1] == index
+
     def _check_if_game_over(self, guesser):
         if guesser == "player":
             self.player_score += 1
@@ -114,10 +120,10 @@ class Game:
         self.player_ship_placement = self._random_ship_placements()
         self.computer_ship_placement = self._random_ship_placements()
 
-        print(self.computer_ship_placement)
+        print(self.player_board)
 
         for ship in self.player_ship_placement:
-            self.player_board[ship[0]][ship[1]] = "&"
+            self.player_board[ship[1]][ship[0]] = "&"
     
     def display_boards(self):
         print("Computer's Board:")
@@ -129,15 +135,11 @@ class Game:
             print(" ".join(row))
 
     def player_guess(self):
+        print("Comp board", self.computer_ship_placement)
+        print("player_board", self.player_ship_placement)
         print("-" * 20)
         player_guessing_letter = self._ask_letter()
         player_guessing_number = self._ask_number()
-        
-        def correct_x_axis(ship, index): 
-            return ship[0] == index
-
-        def correct_y_axis(ship, index): 
-            return ship[1] == index
 
         player_correct_guess = False
 
@@ -145,7 +147,7 @@ class Game:
         y_axis_index = self.y_axis_dict[player_guessing_number]
 
         for ship in self.computer_ship_placement:
-            if correct_x_axis(ship, x_axis_index) and correct_y_axis(ship, y_axis_index):
+            if self._correct_x_axis(ship, x_axis_index) and self._correct_y_axis(ship, y_axis_index):
                 player_correct_guess = True
 
         if player_correct_guess:
@@ -157,15 +159,17 @@ class Game:
             print("Miss")
             self.computer_board[y_axis_index][x_axis_index] = "*"
 
-        # Computer input
+    def computer_input(self):
         computer_correct_guess = False
         comp_guess = self._rand_placements(1)[0]
 
         comp_x_axis_index = comp_guess[0]
         comp_y_axis_index = comp_guess[1]
+        correct_x_axis = self._correct_x_axis(ship, comp_x_axis_index)
+        correct_y_axis = self._correct_y_axis(ship, comp_y_axis_index)
 
         for ship in self.player_ship_placement:
-            if correct_x_axis(ship, comp_x_axis_index) and correct_y_axis(ship, comp_y_axis_index):
+            if correct_x_axis and correct_y_axis:
                 computer_correct_guess = True
 
         if computer_correct_guess:
@@ -181,6 +185,7 @@ class Game:
         while not self.game_over:
             self.display_boards()
             self.player_guess()
+            self.computer_input()
 
 
 def game_rules():
