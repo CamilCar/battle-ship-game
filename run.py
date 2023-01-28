@@ -7,6 +7,21 @@ class Game:
     """
     def __init__(self, player_name):
         self.player_name = player_name
+        self.x_axis_dict = {
+            "a": 0,
+            "b": 1,
+            "c": 2,
+            "d": 3,
+            "e": 4
+        }
+
+        self.y_axis_dict = {
+            "1": 0,
+            "2": 1,
+            "3": 2,
+            "4": 3,
+            "5": 4
+        }
 
     def _random_ship_placements(self, size):
         rand_placements = [[randint(0, size - 1), randint(0, size - 1)] for x in range(4)]
@@ -27,6 +42,8 @@ class Game:
         self.player_ship_placement = self._random_ship_placements(size)
         self.computer_ship_placement = self._random_ship_placements(size)
 
+        print(self.computer_ship_placement)
+
         for ship in self.player_ship_placement:
             self.player_board[ship[0]][ship[1]] = "&"
     
@@ -38,6 +55,36 @@ class Game:
         print(f"{self.player_name}'s Board:")
         for row in self.player_board:
             print(" ".join(row))
+
+    def player_guess(self):
+        print("-" * 20)
+        player_guessing_letter = input("Choose a letter \n")
+        player_guessing_number = input("Choose a number \n")
+
+        x_axis_index = self.x_axis_dict[player_guessing_letter]
+        y_axis_index = self.y_axis_dict[player_guessing_number]
+
+        def correct_x_axis(ship): 
+            return ship[0] == x_axis_index
+
+        def correct_y_axis(ship): 
+            return ship[1] == y_axis_index
+
+        correct_guess = False
+
+        for ship in self.computer_ship_placement:
+            if correct_x_axis(ship) and correct_y_axis(ship):
+                correct_guess = True
+
+        if correct_guess:
+            print("Hit")
+            self.computer_board[y_axis_index][x_axis_index] = "&"
+
+        else:
+            print("Miss")
+            self.computer_board[y_axis_index][x_axis_index] = "*"
+
+        self.display_boards()
 
 def game_rules():
     print("goes here")
@@ -57,5 +104,6 @@ def main():
     size = 5
     game.create_boards(size)
     game.display_boards()
+    game.player_guess()
 
 main()
