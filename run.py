@@ -7,6 +7,9 @@ class Game:
     """
     def __init__(self, player_name):
         self.player_name = player_name
+        self.game_over = False
+        self.player_score = 0
+        self.computer_score = 0
         self.x_axis_dict = {
             "a": 0,
             "b": 1,
@@ -27,7 +30,7 @@ class Game:
         return [[randint(0, self.size - 1), randint(0, self.size - 1)] for x in range(amount)]
 
     def _random_ship_placements(self):
-        rand_placements = self._rand_placements(4)
+        rand_placements = self._rand_placements(self.amount_of_boats)
         uniq_ships = set(tuple(ship) for ship in rand_placements)
 
         if len(rand_placements) != len(uniq_ships):
@@ -39,7 +42,7 @@ class Game:
         valid_letters = list(self.x_axis_dict.keys())
         valid = True
 
-        if not isinstance(letter, str):
+        if not letter or not isinstance(letter, str):
             print("Please enter a letter")
             valid = False
         elif len(letter) > 1:
@@ -55,20 +58,52 @@ class Game:
         valid_numbers = list(self.y_axis_dict.keys())
         valid = True
 
-        if not isinstance(number, int):
+        try:
+            int(number)
+            if number not in valid_numbers:
+                print(f"Please enter one of the following numbers: {valid_numbers}")
+                valid = False
+        except ValueError:
             print("Please enter a number")
-            valid = False
-        elif len(number) > 1:
-            print("Please enter one number")
-            valid = False
-        elif number not in valid_numbers:
-            print(f"Please enter one of the following numbers: {valid_numbers}")
             valid = False
 
         return valid
 
+    def _ask_letter(self):
+        valid_letter = False
+        player_guessing_letter = ""
+
+        while not valid_letter:
+            player_guessing_letter = input("Choose a letter \n").lower()
+            valid_letter = self._validate_letter(player_guessing_letter)
+
+        return player_guessing_letter
+    
+    def _ask_number(self):
+        valid_number = False
+        player_guessing_number = ""
+
+        while not valid_number:
+            player_guessing_number = input("Choose a number \n")
+            valid_number = self._validate_number(player_guessing_number)
+
+        return player_guessing_number
+
+    def _check_if_game_over(self, guesser):
+        if guesser == "player":
+            self.player_score += 1
+            if self.player_score >= self.amount_of_boats:
+                print(f"The winner is: {self.player_name}!")
+                self.game_over = True
+        else:
+            self.computer_score += 1
+            if self.computer_score >= self.amount_of_boats:
+                print("Computer won!")
+                self.game_over = True
+
     def create_boards(self, size):
         self.size = size
+        self.amount_of_boats = 4
 
         def generateboard():
             return [["." for x in range(size)] for y in range(size)]
@@ -95,19 +130,9 @@ class Game:
 
     def player_guess(self):
         print("-" * 20)
-        player_guessing_letter = input("Choose a letter \n").lower()
-        valid_letter = self._validate_letter(player_guessing_letter)
-
-        if not valid_letter:
-            self.player_guess()
-
-        player_guessing_number = input("Choose a number \n")
-        valid_number = self._validate_number(player_guessing_number)
-
-        if not valid_number:
-            self.player_guess()
-
-
+        player_guessing_letter = self._ask_letter()
+        player_guessing_number = self._ask_number()
+        
         def correct_x_axis(ship, index): 
             return ship[0] == index
 
@@ -126,12 +151,13 @@ class Game:
         if player_correct_guess:
             print("Hit")
             self.computer_board[y_axis_index][x_axis_index] = "&"
+            self._check_if_game_over("player")
 
         else:
             print("Miss")
             self.computer_board[y_axis_index][x_axis_index] = "*"
 
-        ##### BörjR GÖRA SAKERHTHTUGUTUTUT 
+        # Computer input
         computer_correct_guess = False
         comp_guess = self._rand_placements(1)[0]
 
@@ -145,12 +171,16 @@ class Game:
         if computer_correct_guess:
             self.player_board[comp_y_axis_index][comp_x_axis_index] = "x"
             print("Computer Hit")
+            self._check_if_game_over("computer")
 
         else:
             self.player_board[comp_y_axis_index][comp_x_axis_index] = "*"
             print("Computer Missed")
 
-        self.display_boards()
+    def run(self):
+        while not self.game_over:
+            self.display_boards()
+            self.player_guess()
 
 
 def game_rules():
@@ -170,7 +200,7 @@ def main():
     game = Game(player_name)
     size = 5
     game.create_boards(size)
-    game.display_boards()
-    game.player_guess()
+
+    game.run()
 
 main()
