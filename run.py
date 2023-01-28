@@ -89,10 +89,10 @@ class Game:
 
         return player_guessing_number
 
-    def _correct_x_axis(ship, index): 
+    def _correct_x_axis(self, ship, index): 
         return ship[0] == index
 
-    def _correct_y_axis(ship, index): 
+    def _correct_y_axis(self, ship, index): 
         return ship[1] == index
 
     def _check_if_game_over(self, guesser):
@@ -101,11 +101,13 @@ class Game:
             if self.player_score >= self.amount_of_boats:
                 print(f"The winner is: {self.player_name}!")
                 self.game_over = True
+                return True
         else:
             self.computer_score += 1
             if self.computer_score >= self.amount_of_boats:
                 print("Computer won!")
                 self.game_over = True
+                return True
 
     def create_boards(self, size):
         self.size = size
@@ -153,8 +155,6 @@ class Game:
         if player_correct_guess:
             print("Hit")
             self.computer_board[y_axis_index][x_axis_index] = "&"
-            self._check_if_game_over("player")
-
         else:
             print("Miss")
             self.computer_board[y_axis_index][x_axis_index] = "*"
@@ -165,18 +165,17 @@ class Game:
 
         comp_x_axis_index = comp_guess[0]
         comp_y_axis_index = comp_guess[1]
-        correct_x_axis = self._correct_x_axis(ship, comp_x_axis_index)
-        correct_y_axis = self._correct_y_axis(ship, comp_y_axis_index)
 
         for ship in self.player_ship_placement:
+            correct_x_axis = self._correct_x_axis(ship, comp_x_axis_index)
+            correct_y_axis = self._correct_y_axis(ship, comp_y_axis_index)
+
             if correct_x_axis and correct_y_axis:
                 computer_correct_guess = True
 
         if computer_correct_guess:
             self.player_board[comp_y_axis_index][comp_x_axis_index] = "x"
             print("Computer Hit")
-            self._check_if_game_over("computer")
-
         else:
             self.player_board[comp_y_axis_index][comp_x_axis_index] = "*"
             print("Computer Missed")
@@ -185,8 +184,10 @@ class Game:
         while not self.game_over:
             self.display_boards()
             self.player_guess()
+            if self._check_if_game_over("player"):
+                return
             self.computer_input()
-
+            self._check_if_game_over("computer")
 
 def game_rules():
     print("goes here")
