@@ -18,17 +18,18 @@ class Game:
             return rand_placements
 
     def create_boards(self, size):
-        board = [["." for x in range(size)] for y in range(size)]
-        self.player_board = board
-        self.computer_board = board
+        def generateboard():
+            return [["." for x in range(size)] for y in range(size)]
+       
+        self.player_board = generateboard()
+        self.computer_board = generateboard()
 
         self.player_ship_placement = self._random_ship_placements(size)
         self.computer_ship_placement = self._random_ship_placements(size)
-        print(self.player_ship_placement)
-        print(self.computer_ship_placement)
 
+        for ship in self.player_ship_placement:
+            self.player_board[ship[0]][ship[1]] = "&"
     
-        
     def display_boards(self):
         print("Computer's Board:")
         for row in self.computer_board:
