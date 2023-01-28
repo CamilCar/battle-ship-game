@@ -1,16 +1,34 @@
+from random import randint
+
 class Game:
     """
     Game class. Keeps track of game scores, 
     game progress, ships.
     """
-    def __init__(self,player_name):
+    def __init__(self, player_name):
         self.player_name = player_name
-        
+
+    def _random_ship_placements(self, size):
+        rand_placements = [[randint(0, size - 1), randint(0, size - 1)] for x in range(4)]
+        uniq_ships = set(tuple(ship) for ship in rand_placements)
+
+        if len(rand_placements) != len(uniq_ships):
+            return self._random_ship_placements(size)
+        else:
+            return rand_placements
+
     def create_boards(self, size):
         board = [["." for x in range(size)] for y in range(size)]
         self.player_board = board
         self.computer_board = board
 
+        self.player_ship_placement = self._random_ship_placements(size)
+        self.computer_ship_placement = self._random_ship_placements(size)
+        print(self.player_ship_placement)
+        print(self.computer_ship_placement)
+
+    
+        
     def display_boards(self):
         print("Computer's Board:")
         for row in self.computer_board:
@@ -20,15 +38,19 @@ class Game:
         for row in self.player_board:
             print(" ".join(row))
 
+def game_rules():
+    print("goes here")
+    print("-" * 20)
 
 def ask_player_name():
-    print("Welcome to Battle Ship")
+    print("Battle Ship Game!")
     player_name = input("Enter player name \n")
-    print(f"Welcome {player_name}, your game is starting...")
-    
+    print(f"{player_name}, your game is starting...")
+    print("-" * 20)
     return player_name
     
 def main():
+    game_rules()
     player_name = ask_player_name()
     game = Game(player_name)
     size = 5
