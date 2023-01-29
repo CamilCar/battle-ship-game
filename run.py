@@ -5,7 +5,8 @@ import sys
 class Game:
     """
     Game class. Keeps track of game scores,
-    game progress, ships.
+    game progress, ships. Contains a dictionary that
+    translates input to letters and numbers where index 0 is now 1.
     """
     def __init__(self, player_name):
         self.player_name = player_name
@@ -27,10 +28,10 @@ class Game:
             "4": 3,
             "5": 4
         }
+    # Places ships randomly on board and checks that its a unique position
 
     def _rand_placements(self, amount):
-        random_int = randint(0, self.size - 1)
-        return [[random_int, random_int] for x in range(amount)]
+        return [[randint(0, self.size - 1), randint(0, self.size - 1)] for x in range(amount)]
 
     def _random_ship_placements(self):
         rand_placements = self._rand_placements(self.amount_of_boats)
@@ -40,6 +41,8 @@ class Game:
             return self._random_ship_placements()
         else:
             return rand_placements
+
+    # Validates input of user
 
     def _validate_letter(self, letter):
         valid_letters = list(self.x_axis_dict.keys())
@@ -72,6 +75,8 @@ class Game:
 
         return valid
 
+    # Asks user for input to play the game
+
     def _ask_letter(self):
         valid_letter = False
         player_guessing_letter = ""
@@ -89,14 +94,19 @@ class Game:
         while not valid_number:
             player_guessing_number = input("Choose a number \n")
             valid_number = self._validate_number(player_guessing_number)
+            print("-" * 20)
 
         return player_guessing_number
+
+    # Checks if user and computer choise is correct
 
     def _correct_x_axis(self, ship, index):
         return ship[0] == index
 
     def _correct_y_axis(self, ship, index):
         return ship[1] == index
+
+    # Keeps count of num of ships found and checks for winner
 
     def _check_if_game_over(self, guesser, correct_guess):
         if correct_guess:
@@ -112,6 +122,8 @@ class Game:
                     print("Computer won!")
                     self.game_over = True
                     return True
+
+    # Asks user to continue or quit game
 
     def _next_round(self):
         player_input = input("Press any key to continue, or Q to quit \n")
@@ -135,6 +147,7 @@ class Game:
             self.player_board[ship[1]][ship[0]] = "&"
 
     def display_boards(self):
+        print("-" * 20)
         print("Computer's Board:")
         for row in self.computer_board:
             print(" ".join(row))
@@ -142,6 +155,9 @@ class Game:
         print(f"{self.player_name}'s Board:")
         for row in self.player_board:
             print(" ".join(row))
+
+    # Checks players input against ships location and
+    # keeps track of user input
 
     def player_guess(self):
         print("-" * 20)
@@ -175,6 +191,8 @@ class Game:
             self.computer_board[y_axis_index][x_axis_index] = "*"
             return False
 
+    # Computer checks for players ships. Updates board if hit or miss.
+
     def computer_input(self):
         computer_correct_guess = False
 
@@ -206,6 +224,8 @@ class Game:
             print("Computer Missed")
             return False
 
+    # Main game loop
+
     def run(self):
         while not self.game_over:
             player_guessed_correctly = self.player_guess()
@@ -216,15 +236,17 @@ class Game:
             self.display_boards()
             self._next_round()
 
-
-def game_rules():
-    print("goes here")
-    print("-" * 20)
+# Game intro
 
 
 def ask_player_name():
-    print("Battle Ship Game!")
-
+    print("-" * 20)
+    print("Battleship Game!")
+    print("-" * 20)
+    print("Letters A-E for horizontal. Numbers 1-5 for diagonal.")
+    print("Player's ships = &. Enemy's sunken ships = X.")
+    print("Player's sunken ships = X. Miss = * ")
+    print("-" * 20)
     player_name = ""
     while not player_name:
         player_name = input("Enter player name \n")
@@ -235,9 +257,10 @@ def ask_player_name():
     print("-" * 20)
     return player_name
 
+# Main game functions
+
 
 def main():
-    game_rules()
     player_name = ask_player_name()
     game = Game(player_name)
     size = 5
